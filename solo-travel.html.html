@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>輕旅單程票 · 女子療癒診斷</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  :root{
+    --bg-a:#fbeee7;
+    --bg-b:#eef2e2;
+    --paper:#fffbf6;
+    --paper-2:#f7ece2;
+    --ink:#4a3d38;
+    --ink-soft:#a3948a;
+    --rose:#e2909f;
+    --rose-deep:#c06478;
+    --rose-soft:#f8e1e6;
+    --sage:#8fab7c;
+    --route1:#c98a52;
+    --route1-soft:#f5e2cd;
+    --route2:#7fa06d;
+    --route2-soft:#e7efdf;
+    --route3:#6fa3ad;
+    --route3-soft:#dcedf0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 6%, rgba(226,144,159,0.35), transparent 42%),
+      radial-gradient(circle at 88% 18%, rgba(143,171,124,0.28), transparent 45%),
+      radial-gradient(circle at 30% 95%, rgba(184,169,217,0.22), transparent 40%),
+      linear-gradient(160deg, var(--bg-a), var(--bg-b));
+    font-family:'Noto Sans TC', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:28px 14px 60px;
+  }
+  .stage{ width:100%; max-width:420px; }
+
+  /* ===== Header ===== */
+  .masthead{ text-align:center; margin-bottom:14px; }
+  .masthead .line-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-family:'Klee One', sans-serif;
+    font-size:12px;
+    letter-spacing:0.06em;
+    color:var(--rose-deep);
+    background:rgba(255,255,255,0.55);
+    border:1px solid rgba(224,144,159,0.5);
+    padding:5px 12px;
+    border-radius:20px;
+  }
+  .masthead h1{
+    font-family:'Noto Serif TC', serif;
+    font-weight:900;
+    font-size:24px;
+    margin:12px 0 5px;
+    color:#4a3d38;
+  }
+  .masthead .sub{
+    font-family:'Klee One', sans-serif;
+    font-size:12.5px;
+    color:#8d7d74;
+  }
+
+  /* ===== Rail progress (softened, floral) ===== */
+  .rail-progress{
+    position:relative;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:22px 10px 22px;
+    height:20px;
+  }
+  .rail-progress::before{
+    content:"";
+    position:absolute;
+    left:2px; right:2px; top:50%;
+    height:2px;
+    background:repeating-linear-gradient(90deg, var(--rose) 0 5px, transparent 5px 9px);
+    opacity:.6;
+    transform:translateY(-50%);
+    z-index:0;
+  }
+  .rail-progress .station{
+    position:relative; z-index:1;
+    width:9px; height:9px;
+    border-radius:50%;
+    background:#fff;
+    border:2px solid rgba(224,144,159,0.45);
+    transition:all .3s ease;
+  }
+  .rail-progress .station.done{
+    background:var(--rose);
+    border-color:var(--rose);
+    box-shadow:0 0 0 4px rgba(226,144,159,0.22);
+  }
+  .rail-progress .station.current{ width:0; height:0; }
+  .rail-progress .train{
+    position:absolute; z-index:2;
+    top:50%; transform:translate(-50%,-50%);
+    font-size:18px;
+    transition:left .4s ease;
+    filter:drop-shadow(0 2px 3px rgba(192,100,120,0.35));
+  }
+
+  /* ===== Question card (soft healing kiosk) ===== */
+  .kiosk{
+    background:linear-gradient(165deg, #fffdfa, var(--paper-2));
+    border:1px solid rgba(224,144,159,0.25);
+    border-radius:22px;
+    padding:24px 22px 22px;
+    box-shadow:0 22px 48px rgba(192,100,120,0.16);
+    position:relative;
+    overflow:hidden;
+  }
+  .kiosk .corner-bloom{
+    position:absolute;
+    top:-14px; left:-14px;
+    width:76px; height:76px;
+    opacity:0.5;
+    pointer-events:none;
+  }
+  .qmeta{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'Klee One', sans-serif;
+    font-size:11.5px;
+    color:var(--rose-deep);
+    letter-spacing:0.05em;
+    margin-bottom:12px;
+    position:relative;
+    z-index:1;
+  }
+  .kiosk h2{
+    font-family:'Noto Serif TC', serif;
+    color:var(--ink);
+    font-size:17.5px;
+    line-height:1.75;
+    font-weight:700;
+    margin:2px 0 20px;
+    position:relative;
+    z-index:1;
+  }
+
+  .keypad{ display:flex; flex-direction:column; gap:10px; position:relative; z-index:1; }
+  .key{
+    text-align:left;
+    display:flex; align-items:center; gap:11px;
+    border:1.5px solid rgba(74,61,56,0.1);
+    background:#ffffff;
+    border-radius:14px;
+    padding:14px 15px;
+    color:var(--ink);
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:14px;
+    line-height:1.55;
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+  .key:hover{ border-color:var(--rose); background:var(--rose-soft); transform:translateY(-1px); }
+  .key.picked{
+    border-color:var(--rose);
+    background:var(--rose-soft);
+    box-shadow:0 0 0 2px rgba(226,144,159,0.25);
+  }
+  .key .tag{
+    font-family:'Klee One', sans-serif;
+    font-size:12px;
+    width:22px;height:22px;line-height:22px;
+    text-align:center;
+    border-radius:50%;
+    background:var(--rose-soft);
+    color:var(--rose-deep);
+    flex-shrink:0;
+  }
+  .foot-note{
+    text-align:center;
+    font-family:'Klee One', sans-serif;
+    font-size:11.5px;
+    color:#a3948a;
+    margin-top:16px;
+  }
+
+  /* ===== Result: printed ticket ===== */
+  .ticket{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:6px;
+    clip-path:polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    box-shadow:0 28px 60px rgba(192,100,120,0.28);
+    animation:drop .5s cubic-bezier(.22,1,.36,1);
+    position:relative;
+    overflow:hidden;
+  }
+  @keyframes drop{
+    from{opacity:0; transform:translateY(-10px) scale(.98);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  .ticket-head{
+    padding:18px 20px 16px;
+    background:var(--route-color, var(--route1));
+    background-image:linear-gradient(160deg, rgba(255,255,255,0.22), transparent 60%);
+    color:#fff;
+    position:relative;
+  }
+  .ticket-head .k1{
+    font-family:'Klee One', sans-serif;
+    font-size:11px;
+    letter-spacing:0.08em;
+    opacity:.95;
+  }
+  .ticket-head h2{
+    font-family:'Noto Serif TC', serif;
+    font-weight:900;
+    font-size:27px;
+    margin:5px 0 0;
+  }
+  .ticket-head .seal{
+    position:absolute; right:18px; top:16px;
+    width:50px; height:50px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.22);
+    border:2px solid rgba(255,255,255,0.65);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    transform:rotate(-8deg);
+    box-shadow:0 6px 14px rgba(0,0,0,0.15);
+  }
+  .safe-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin-top:10px;
+    font-family:'Klee One', sans-serif;
+    font-size:10.5px;
+    letter-spacing:0.03em;
+    background:rgba(255,255,255,0.24);
+    border:1px solid rgba(255,255,255,0.55);
+    color:#fff;
+    padding:4px 10px;
+    border-radius:20px;
+    width:fit-content;
+  }
+  .perf-row{
+    display:flex; justify-content:space-evenly;
+    padding:8px 12px;
+    background:var(--paper-2);
+    font-size:8px;
+    color:var(--rose-deep);
+  }
+  .ticket-body{ padding:18px 20px 22px; position:relative; overflow:hidden; }
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:16px;
+    position:relative;
+    z-index:1;
+  }
+  .field{
+    border:1.5px dashed var(--rose);
+    background:var(--rose-soft);
+    border-radius:12px;
+    padding:9px 11px;
+  }
+  .field .lbl{
+    font-family:'Klee One', sans-serif;
+    font-size:9.5px;
+    color:var(--rose-deep);
+    letter-spacing:0.05em;
+  }
+  .field .val{
+    font-family:'Noto Serif TC', serif;
+    font-weight:700;
+    font-size:13.5px;
+    margin-top:3px;
+    color:var(--ink);
+  }
+  .ticket-body p.desc{
+    font-size:14px;
+    line-height:1.9;
+    margin:0 0 16px;
+    position:relative;
+    z-index:1;
+  }
+  .sprig{
+    position:absolute;
+    right:-8px; bottom:-6px;
+    width:88px; height:88px;
+    opacity:0.18;
+    pointer-events:none;
+  }
+  .sprig-top{
+    position:absolute;
+    left:-10px; top:6px;
+    width:60px; height:60px;
+    opacity:0.14;
+    pointer-events:none;
+    transform:scaleX(-1);
+  }
+  .cta{
+    display:block; width:100%;
+    text-align:center;
+    padding:14px;
+    border:none; border-radius:14px;
+    background:var(--route-color, var(--route1));
+    color:#fff;
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition:filter .2s;
+    position:relative;
+    z-index:1;
+  }
+  .cta:hover{ filter:brightness(1.06); }
+  .cta.secondary{
+    background:var(--ink);
+    opacity:0.85;
+    margin-top:9px;
+  }
+  .restart{
+    display:block; width:100%;
+    margin-top:12px;
+    background:none; border:none;
+    color:#a3948a;
+    font-size:12px;
+    cursor:pointer;
+    text-decoration:underline;
+    text-align:center;
+    position:relative;
+    z-index:1;
+  }
+
+  .hidden{ display:none; }
+  @media (prefers-reduced-motion: reduce){ .ticket{ animation:none; } }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="masthead">
+    <span class="line-tag">🎀 女子輕旅專線 · Healing Line</span>
+    <h1>單程票診斷</h1>
+    <div class="sub">獻給獨自出走的妳 ✿ 請作答 6 題，找到妳的療癒路線</div>
+  </div>
+
+  <div class="rail-progress" id="railProgress"></div>
+
+  <!-- 問答卡 -->
+  <div id="quizCard" class="kiosk">
+    <svg class="corner-bloom" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 90C16 66 20 46 16 18" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+      <path d="M16 34C24 28 30 28 34 20" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+      <path d="M14 50C6 45 2 45 -4 39" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="35" cy="18" r="4.5" stroke="#c06478" stroke-width="2"/>
+    </svg>
+    <div class="qmeta">✿ 第 <b id="qnumTxt">1</b> 站／共 6 站</div>
+    <h2 id="qtext"></h2>
+    <div class="keypad" id="options"></div>
+  </div>
+  <div class="foot-note">誠實作答就好，答案沒有對錯 ﾟ+｡</div>
+
+  <!-- 出票結果 -->
+  <div id="resultCard" class="ticket hidden">
+    <div class="ticket-head" id="resultTop">
+      <div class="k1">TICKET ✿ 已為妳出票</div>
+      <h2 id="resultTitle">路線名稱</h2>
+      <div class="safe-badge">🛡 女性安心車廂 · 全程守護</div>
+      <div class="seal" id="resultSeal">✿</div>
+    </div>
+    <div class="perf-row">
+      ✿ ﾟ ✿ ﾟ ✿ ﾟ ✿ ﾟ ✿ ﾟ ✿
+    </div>
+    <div class="ticket-body">
+      <svg class="sprig-top" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 90C16 66 20 46 16 18" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="16" cy="16" r="5" stroke="#c06478" stroke-width="2"/>
+      </svg>
+      <div class="field-grid">
+        <div class="field">
+          <div class="lbl">出發心情</div>
+          <div class="val" id="resultFeel">—</div>
+        </div>
+        <div class="field">
+          <div class="lbl">感官體驗</div>
+          <div class="val" id="resultSense">—</div>
+        </div>
+      </div>
+      <p class="desc" id="resultDesc"></p>
+      <svg class="sprig" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 92C28 70 34 50 30 22" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+        <path d="M30 40C38 34 46 34 50 26" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+        <path d="M28 55C20 50 14 50 8 44" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+        <path d="M32 70C40 66 46 68 52 60" stroke="#c06478" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="51" cy="24" r="5" stroke="#c06478" stroke-width="2"/>
+        <circle cx="9" cy="43" r="4" stroke="#c06478" stroke-width="2"/>
+      </svg>
+      <button class="cta" id="ctaBtn">查看路線詳情</button>
+      <button class="cta secondary" id="sendBtn">將車票傳回聊天室</button>
+      <button class="restart" id="restartBtn">重新購票一次</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    text:"抵達一座陌生城市的第一晚，你最想做的事是？",
+    opts:[
+      {label:"找一間有故事的老宅咖啡館，慢慢感受這座城市的過去", r:"route1"},
+      {label:"隨意走進巷弄裡的小公園，讓自己被綠意包圍、喘口氣", r:"route2"},
+      {label:"走到能看到水的地方，吹吹風、看夕陽把心情沉澱下來", r:"route3"},
+    ]
+  },
+  {
+    text:"如果你的心是一張還沒寫滿的明信片，你希望旅途在上面留下什麼？",
+    opts:[
+      {label:"一段值得說給朋友聽的人文故事", r:"route1"},
+      {label:"一種被大自然重新充電的感覺", r:"route2"},
+      {label:"一種被溫柔擁抱、徹底放鬆的觸感", r:"route3"},
+    ]
+  },
+  {
+    text:"旅行前，你最近的生活狀態比較像？",
+    opts:[
+      {label:"對很多事都充滿好奇，想多了解、多學一點", r:"route1"},
+      {label:"有點疲憊，腦袋塞滿太多資訊，需要「清空」", r:"route2"},
+      {label:"身心緊繃，很久沒有好好被照顧、被療癒了", r:"route3"},
+    ]
+  },
+  {
+    text:"閉上眼睛，想像旅程中最療癒的一個畫面，會是？",
+    opts:[
+      {label:"走在有歷史痕跡的石板路上，光影灑落在古老牆面", r:"route1"},
+      {label:"陽光穿過樹葉間隙，灑落在一片安靜的綠地上", r:"route2"},
+      {label:"赤腳踩在沙灘上，海風吹拂臉頰，浪聲輕輕拍打", r:"route3"},
+    ]
+  },
+  {
+    text:"如果旅行是一種「感官體驗」，你最想被打開的感官是？",
+    opts:[
+      {label:"視覺與思考——想看見、想理解、想記住", r:"route1"},
+      {label:"視覺與呼吸——想看見綠意、深呼吸放鬆", r:"route2"},
+      {label:"視覺與觸覺——想被風、水、陽光實際觸碰到", r:"route3"},
+    ]
+  },
+  {
+    text:"旅程結束後，你希望自己帶回什麼？",
+    opts:[
+      {label:"一份對這座城市文化更深的理解與感動", r:"route1"},
+      {label:"一種久違的、身心都被「重新開機」的輕盈感", r:"route2"},
+      {label:"一種被好好療癒過、緊繃終於鬆開的感覺", r:"route3"},
+    ]
+  },
+];
+
+const results = {
+  route1:{
+    title:"歷史慢旅",
+    icon:"🏛",
+    seal:"📜",
+    color:"var(--route1)",
+    feel:"沉靜好奇",
+    sense:"視覺・思考",
+    desc:"你是一位喜歡讓旅程「有厚度」的人。比起走馬看花，你更想在老街的轉角、斑駁的牆面裡，讀懂一座城市的故事與靈魂。這趟旅程適合放慢腳步，讓每一處歷史痕跡都成為你與自己對話的時刻。",
+    shareText:"我的獨旅測驗結果是「歷史慢旅」🏛 適合喜歡文化、歷史景點的慢步調旅人，一起來測看看妳適合哪條路線吧！",
+    detailUrl:"https://example.com/route1"
+  },
+  route2:{
+    title:"綠意慢遊",
+    icon:"🌿",
+    seal:"🌿",
+    color:"var(--route2)",
+    feel:"渴望淨空",
+    sense:"視覺・呼吸",
+    desc:"最近的你，或許有點累了。腦袋裡塞了太多聲音，是時候讓自己被溫柔的綠意包圍，重新深呼吸、重新開機。這趟旅程用最療癒的視覺體驗，陪你找回內心的平靜與輕盈。",
+    shareText:"我的獨旅測驗結果是「綠意慢遊」🌿 適合想被大自然療癒、重新開機的旅人，一起來測看看妳適合哪條路線吧！",
+    detailUrl:"https://example.com/route2"
+  },
+  route3:{
+    title:"港灣療癒",
+    icon:"🌊",
+    seal:"🌊",
+    color:"var(--route3)",
+    feel:"渴望擁抱",
+    sense:"視覺・觸覺",
+    desc:"你渴望的，是一場能真正被觸碰、被療癒的旅程。海風拂面、浪聲輕拍，這條路線結合視覺與觸覺的雙重體驗，讓緊繃已久的身心，終於能好好放鬆下來。",
+    shareText:"我的獨旅測驗結果是「港灣療癒」🌊 適合想被海風、海景徹底放鬆的旅人，一起來測看看妳適合哪條路線吧！",
+    detailUrl:"https://example.com/route3"
+  }
+};
+
+// ===== LIFF 設定 =====
+const LIFF_ID = "YOUR_LIFF_ID"; // TODO: 換成你的 LIFF ID
+let liffReady = false;
+async function initLiff(){
+  try{
+    await liff.init({ liffId: LIFF_ID });
+    liffReady = true;
+  }catch(e){
+    console.warn("LIFF 初始化失敗，將以一般網頁模式運作：", e);
+    liffReady = false;
+  }
+}
+initLiff();
+
+let current = 0;
+let scores = {route1:0, route2:0, route3:0};
+let currentWinner = 'route1';
+
+const railProgress = document.getElementById('railProgress');
+const qnumTxt = document.getElementById('qnumTxt');
+const qtextEl = document.getElementById('qtext');
+const optionsEl = document.getElementById('options');
+const quizCard = document.getElementById('quizCard');
+const resultCard = document.getElementById('resultCard');
+
+function buildRail(){
+  railProgress.innerHTML = '';
+  questions.forEach((_, i) => {
+    const s = document.createElement('div');
+    s.className = 'station' + (i < current ? ' done' : (i === current ? ' current' : ''));
+    railProgress.appendChild(s);
+  });
+  const train = document.createElement('div');
+  train.className = 'train';
+  train.textContent = '🚋';
+  const pct = (current / (questions.length - 1)) * 100;
+  train.style.left = pct + '%';
+  railProgress.appendChild(train);
+}
+
+function renderQuestion(){
+  const q = questions[current];
+  qnumTxt.textContent = String(current+1);
+  qtextEl.textContent = q.text;
+  optionsEl.innerHTML = '';
+  const tags = ['A','B','C'];
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'key';
+    btn.innerHTML = `<span class="tag">${tags[idx]}</span><span>${opt.label}</span>`;
+    btn.addEventListener('click', () => selectOption(btn, opt));
+    optionsEl.appendChild(btn);
+  });
+  buildRail();
+}
+
+function selectOption(btn, opt){
+  document.querySelectorAll('.key').forEach(o => o.classList.remove('picked'));
+  btn.classList.add('picked');
+  scores[opt.r]++;
+
+  setTimeout(() => {
+    if(current < questions.length - 1){
+      current++;
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 380);
+}
+
+function showResult(){
+  quizCard.classList.add('hidden');
+  document.querySelector('.foot-note').classList.add('hidden');
+
+  let winner = 'route1';
+  let best = -1;
+  ['route1','route2','route3'].forEach(r => {
+    if(scores[r] > best){ best = scores[r]; winner = r; }
+  });
+  currentWinner = winner;
+
+  const r = results[winner];
+  document.getElementById('resultTop').style.setProperty('--route-color', r.color);
+  document.getElementById('ctaBtn').style.setProperty('--route-color', r.color);
+  document.getElementById('resultTitle').textContent = r.title;
+  document.getElementById('resultSeal').textContent = r.seal;
+  document.getElementById('resultDesc').textContent = r.desc;
+  document.getElementById('resultFeel').textContent = r.feel;
+  document.getElementById('resultSense').textContent = r.sense;
+
+  resultCard.classList.remove('hidden');
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  current = 0;
+  scores = {route1:0, route2:0, route3:0};
+  resultCard.classList.add('hidden');
+  quizCard.classList.remove('hidden');
+  document.querySelector('.foot-note').classList.remove('hidden');
+  renderQuestion();
+});
+
+document.getElementById('ctaBtn').addEventListener('click', () => {
+  const url = results[currentWinner].detailUrl;
+  if(liffReady && liff.isInClient()){
+    liff.openWindow({ url, external: false });
+  } else {
+    window.open(url, '_blank');
+  }
+});
+
+document.getElementById('sendBtn').addEventListener('click', async () => {
+  const r = results[currentWinner];
+  if(!liffReady){
+    alert('目前不在 LINE 環境中，無法傳送訊息回聊天室（此功能需在 LINE App 內開啟才會生效）。');
+    return;
+  }
+  try{
+    await liff.sendMessages([{ type: 'text', text: r.shareText }]);
+    liff.closeWindow();
+  }catch(e){
+    console.error('傳送訊息失敗：', e);
+    alert('傳送失敗，請確認這個頁面是從 LINE 聊天室的選單或連結開啟的。');
+  }
+});
+
+renderQuestion();
+</script>
+</body>
+</html>
